@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.contrib.auth.models import User, auth
 from django.contrib import messages
 from .models import Profile
-
+from django.urls import reverse
 
 # Create your views here.
 def index(request):
@@ -42,3 +42,25 @@ def signup(request):
     
   else:
     return render(request, 'signup.html')
+  
+def login(request):
+  if request.method == 'POST':
+    username = request.POST['username']
+    password = request.POST['password']
+    
+    user = auth.authenticate(username=username, password=password)
+    
+    if user is not None:
+      auth.login(request, user)
+      return redirect('index')
+    
+    else:
+      messages.info(request, "Credentials invalid.")
+      return redirect('login')
+    
+  else:
+    return render(request, reverse('login'))
+  
+def logout(request):
+  auth.logout(request)  
+  return redirect(reverse('login'))
